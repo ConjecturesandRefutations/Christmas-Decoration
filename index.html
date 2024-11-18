@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Christmassy Canvas Animation</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="christmasCanvas"></canvas>
+  <script>
+    const canvas = document.getElementById('christmasCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const snowflakes = [];
+    const stars = [];
+    const maxSnowflakes = 150;
+    const maxStars = 100;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    function createGradient() {
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, "#002f4b");
+      gradient.addColorStop(0.5, "#0052cc");
+      gradient.addColorStop(1, "#ffffff");
+      return gradient;
+    }
+
+    class Snowflake {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.radius = Math.random() * 3 + 1;
+        this.speed = Math.random() * 2 + 1;
+        this.opacity = Math.random() * 0.8 + 0.2;
+      }
+
+      update() {
+        this.y += this.speed;
+        if (this.y > canvas.height) {
+          this.reset();
+          this.y = 0; // Start back at the top
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+
+    class Star {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height / 2;
+        this.radius = Math.random() * 2 + 0.5;
+        this.twinkle = Math.random() * 0.2;
+      }
+
+      update() {
+        this.twinkle = Math.abs(Math.sin(Date.now() / 500 + this.radius));
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.twinkle})`;
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+
+    function initializeSnowflakes() {
+      for (let i = 0; i < maxSnowflakes; i++) {
+        snowflakes.push(new Snowflake());
+      }
+    }
+
+    function initializeStars() {
+      for (let i = 0; i < maxStars; i++) {
+        stars.push(new Star());
+      }
+    }
+
+    function animate() {
+      ctx.fillStyle = createGradient();
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (const star of stars) {
+        star.update();
+        star.draw();
+      }
+
+      for (const snowflake of snowflakes) {
+        snowflake.update();
+        snowflake.draw();
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    initializeSnowflakes();
+    initializeStars();
+    animate();
+  </script>
+</body>
+</html>
